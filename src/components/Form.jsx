@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const Form = () => {
+const Form = ({ selectedPrize }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [success, setSuccess] = useState(false);
@@ -13,43 +13,60 @@ const Form = () => {
     const URL_API = `https://api.telegram.org/bot${TOKEN}/sendMessage`;
 
     let message = `<b>Запись клиента</b>\n`;
-    message += `<b>Отправитель:</b> ${name}\n`;
-    message += `<b>Почта:</b> ${email}`;
+    message += `Имя: ${name}\n`;
+    message += `Email: ${email}\n`;
+    message += `Выбранный приз: ${selectedPrize}\n`;
 
     try {
-      await axios.post(URL_API, {
+      const response = await axios.post(URL_API, {
         chat_id: CHAT_ID,
-        parse_mode: 'html',
         text: message,
+        parse_mode: 'HTML',
       });
-      setName('');
-      setEmail('');
-      setSuccess(true);
+
+      if (response.status === 200) {
+        setSuccess(true);
+      }
     } catch (error) {
-      console.warn(error);
+      console.error(error);
     }
   };
 
+  const handleNameChange = (e) => {
+    setName(e.target.value);
+  };
+
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+  };
+
   return (
-    <div>
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="имя"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
+    <form onSubmit={handleSubmit}>
+      <div>
+        <label htmlFor="name">Имя</label>
+        <input type="text" id="name" value={name} onChange={handleNameChange} />
+      </div>
+      <div>
+        <label htmlFor="email">Email</label>
         <input
           type="email"
-          placeholder="эл. почта"
+          id="email"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={handleEmailChange}
         />
-        <button type="submit">отправить</button>
-      </form>
-      {success && <p>Сообщения успешно отправлено!</p>}
-    </div>
+      </div>
+      <div>
+        <label htmlFor="prize">Ваш приз</label>
+        <RoulettePrizeInput value={selectedPrize} onChange={() => {}} />
+      </div>
+      <button type="submit">Отправить</button>
+      {success && <p>Сообщение успешно отправлено!</p>}
+    </form>
   );
+};
+
+const RoulettePrizeInput = ({ value }) => {
+  return <input type="text" value={value} readOnly />;
 };
 
 export default Form;

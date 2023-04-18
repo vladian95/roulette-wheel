@@ -1,12 +1,17 @@
+import React, { useState } from 'react';
 import './App.css';
 import Form from './components/Form';
-import Rolette from './components/Rolette';
+import Roulette from './components/Roulette';
 
 function App() {
+  const [selectedPrize, setSelectedPrize] = useState(null);
+  const handleResultChange = (selectedOption) => {
+    setSelectedPrize(selectedOption);
+  };
   return (
     <div className="App">
-      <Rolette />
-      <Form />
+      <Roulette onResultChange={handleResultChange} />
+      <Form selectedPrize={selectedPrize} />
     </div>
   );
 }
